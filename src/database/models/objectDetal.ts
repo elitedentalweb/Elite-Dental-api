@@ -1,0 +1,55 @@
+import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose';
+
+const objectSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    client: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    location: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'completed'],
+      default: 'active',
+    },
+    photosBefore: {
+      type: [String],
+      default: [],
+    },
+    photosAfter: {
+      type: [String],
+      default: [],
+    },
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  },
+);
+
+export type ObjectType = InferSchemaType<typeof objectSchema>;
+export type ObjectDocument = HydratedDocument<ObjectType>;
+
+export const ObjectCollection = model<ObjectType>('objects', objectSchema);

@@ -1,4 +1,4 @@
-import { HydratedDocument, InferSchemaType, model, Schema } from "mongoose";
+import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose';
 
 const userSchema = new Schema(
   {
@@ -8,6 +8,10 @@ const userSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
     },
     nickname: {
       type: String,
@@ -20,22 +24,30 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ['user', 'admin', 'worker'],
+      default: 'user',
+    },
+    resetToken: {
+      type: String,
+      default: null,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      default: null,
     },
   },
   {
     versionKey: false,
     timestamps: true,
-  }
+  },
 );
 
 export type User = InferSchemaType<typeof userSchema>;
 export type UserDocument = HydratedDocument<User>;
 
 userSchema.methods.toJSON = function (this: UserDocument) {
-  const { password, ...rest } = this.toObject();
+  const { password, resetToken, resetTokenExpiry, ...rest } = this.toObject();
   return rest;
 };
 
-export const UserCollection = model<User>("users", userSchema);
+export const UserCollection = model<User>('users', userSchema);

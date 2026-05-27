@@ -1,17 +1,24 @@
-import { Router } from "express";
-import * as authControllers from "../controllers/authController.js";
-import { authenticate } from "../middlewares/authenticate.js";
+import { Router } from 'express';
+import * as authControllers from '../controllers/authController.js';
+import { authenticate } from '../middlewares/authenticate.js';
+import {
+  forgotPasswordController,
+  resetPasswordController,
+} from '../controllers/authController.js';
 
 const router = Router();
 
-router.post("/register", authControllers.registerUserController);
+router.post('/register', authControllers.registerUserController);
 
-router.post("/login", authControllers.loginController);
+router.post('/login', authControllers.loginController);
 
-router.post("/logout", authControllers.logoutController);
+router.post('/logout', authControllers.logoutController);
 
-router.post("/refresh", authControllers.refreshController);
+router.post('/forgot-password', forgotPasswordController);
+router.post('/reset-password', resetPasswordController);
 
-router.get("/me", authenticate, authControllers.getCurrentUserController);
+router.post('/refresh', authControllers.refreshController);
+
+router.get('/me', authenticate, authControllers.getCurrentUserController);
 
 export default router;

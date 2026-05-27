@@ -1,11 +1,12 @@
-service: aws-node-express-api
+service: elite-dental-api
 
 frameworkVersion: '4'
 
 provider:
   name: aws
   runtime: nodejs22.x
-  
+  profile: eliteDental
+  region: us-east-1
 
 custom:
   prune: # автоматичне видалення старих версій
