@@ -119,20 +119,6 @@ export const refreshController: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const forgotPasswordController: RequestHandler = async (
-  req,
-  res,
-  next,
-) => {
-  try {
-    const { email } = req.body as { email: string };
-    const result = await authServices.forgotPasswordService(email);
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
-  }
-};
-
 export const resetPasswordController: RequestHandler = async (
   req,
   res,

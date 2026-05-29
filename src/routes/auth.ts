@@ -1,10 +1,7 @@
 import { Router } from 'express';
 import * as authControllers from '../controllers/authController.js';
 import { authenticate } from '../middlewares/authenticate.js';
-import {
-  forgotPasswordController,
-  resetPasswordController,
-} from '../controllers/authController.js';
+import { resetPasswordController } from '../controllers/authController.js';
 
 const router = Router();
 
@@ -14,7 +11,6 @@ router.post('/login', authControllers.loginController);
 
 router.post('/logout', authControllers.logoutController);
 
-router.post('/forgot-password', forgotPasswordController);
 router.post('/reset-password', resetPasswordController);
 
 router.post('/refresh', authControllers.refreshController);

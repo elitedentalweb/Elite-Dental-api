@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import createHttpError from 'http-errors';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { sendPasswordResetEmail } from './emailService.js';
 
 import {
   ACCESS_TOKEN_EXPIRES_IN,
@@ -173,26 +172,6 @@ export const refreshService = async (
 export const logoutService = async (refreshToken?: string) => {
   if (!refreshToken) return;
   await deleteSessionByToken(refreshToken);
-};
-
-export const forgotPasswordService = async (email: string) => {
-  const normalizedEmail = email.toLowerCase().trim();
-  const user = await findUserByEmail(normalizedEmail);
-
-  if (!user)
-    return { message: 'If this email exists, you will receive a reset link' };
-
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
-
-  await UserCollection.findByIdAndUpdate(user._id, {
-    resetToken,
-    resetTokenExpiry,
-  });
-
-  await sendPasswordResetEmail(normalizedEmail, resetToken);
-
-  return { message: 'If this email exists, you will receive a reset link' };
 };
 
 export const resetPasswordService = async (

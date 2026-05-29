@@ -1,3 +1,4 @@
+import { ObjectCollection } from '../database/models/objectDetal.js';
 import { TaskCollection } from '../database/models/task.js';
 import { CreateTask, UpdateTask } from '../types/task.js';
 
@@ -24,7 +25,16 @@ export const updateTask = async (id: string, body: UpdateTask) => {
   if (body.description !== undefined) task.description = body.description;
   if (body.photos !== undefined) task.photos = body.photos;
 
-  return task.save();
+  const saved = await task.save();
+
+  const allTasks = await TaskCollection.find({ objectId: task.objectId });
+  const allCompleted = allTasks.every(t => t.progress === 100);
+
+  await ObjectCollection.findByIdAndUpdate(task.objectId, {
+    status: allCompleted ? 'completed' : 'active',
+  });
+
+  return saved;
 };
 
 export const deleteTask = async (id: string) => {
