@@ -68,3 +68,25 @@ export const deleteObject: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateManualProgress: RequestHandler = async (req, res, next) => {
+  const { id } = req.params;
+  const user = req.user as UserDocument;
+  const { manualProgress } = req.body as { manualProgress: number };
+  try {
+    if (user.role !== 'admin') {
+      return next(createHttpError(403, 'Forbidden'));
+    }
+    if (manualProgress < 0 || manualProgress > 100) {
+      return next(createHttpError(400, 'Progress must be between 0 and 100'));
+    }
+    const object = await objectServices.updateManualProgress(
+      id,
+      manualProgress,
+    );
+    if (!object) return next(createHttpError(404, 'Object not found'));
+    res.status(200).json(object);
+  } catch (error) {
+    next(error);
+  }
+};

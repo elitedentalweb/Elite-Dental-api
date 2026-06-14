@@ -43,7 +43,15 @@ export const deleteTask = async (id: string) => {
 
 export const getObjectProgress = async (objectId: string) => {
   const tasks = await TaskCollection.find({ objectId });
-  if (!tasks.length) return 0;
-  const total = tasks.reduce((sum, t) => sum + t.progress, 0);
-  return Math.round(total / tasks.length);
+
+  const object = await ObjectCollection.findById(objectId);
+  const manualProgress = object?.manualProgress ?? 0;
+
+  if (!tasks.length) return manualProgress;
+
+  const autoProgress = Math.round(
+    tasks.reduce((sum, t) => sum + t.progress, 0) / tasks.length,
+  );
+
+  return Math.max(autoProgress, manualProgress);
 };

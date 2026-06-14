@@ -20,3 +20,14 @@ export const updateObject = async (id: string, body: UpdateObject) => {
 export const deleteObject = async (id: string) => {
   return ObjectCollection.findByIdAndDelete(id);
 };
+
+export const updateManualProgress = async (
+  id: string,
+  manualProgress: number,
+) => {
+  return ObjectCollection.findByIdAndUpdate(
+    id,
+    { manualProgress },
+    { new: true },
+  );
+};
