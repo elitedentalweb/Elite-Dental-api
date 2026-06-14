@@ -43,7 +43,6 @@ export const deleteTask = async (id: string) => {
 
 export const getObjectProgress = async (objectId: string) => {
   const tasks = await TaskCollection.find({ objectId });
-
   const object = await ObjectCollection.findById(objectId);
   const manualProgress = object?.manualProgress ?? 0;
 
