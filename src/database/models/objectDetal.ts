@@ -34,6 +34,11 @@ const objectSchema = new Schema(
       enum: ['active', 'completed'],
       default: 'active',
     },
+    priority: {
+      type: String,
+      enum: ['in_progress', 'priority', 'on_hold'],
+      default: 'in_progress',
+    },
     photosBefore: {
       type: [String],
       default: [],

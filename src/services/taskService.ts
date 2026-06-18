@@ -28,7 +28,7 @@ export const updateTask = async (id: string, body: UpdateTask) => {
   const saved = await task.save();
 
   const allTasks = await TaskCollection.find({ objectId: task.objectId });
-  const allCompleted = allTasks.every(t => t.progress === 100);
+  const allCompleted = allTasks.every(t => t.current >= t.total && t.total > 0);
 
   await ObjectCollection.findByIdAndUpdate(task.objectId, {
     status: allCompleted ? 'completed' : 'active',
@@ -36,7 +36,6 @@ export const updateTask = async (id: string, body: UpdateTask) => {
 
   return saved;
 };
-
 export const deleteTask = async (id: string) => {
   return TaskCollection.findByIdAndDelete(id);
 };

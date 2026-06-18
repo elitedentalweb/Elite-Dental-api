@@ -41,12 +41,7 @@ export const setRoleController: RequestHandler = async (req, res, next) => {
     if (user.role !== 'admin') {
       return next(createHttpError(403, 'Forbidden'));
     }
-    const updated = await UserCollection.findOneAndUpdate(
-      { email },
-      { role },
-      { new: true },
-    );
-    if (!updated) return next(createHttpError(404, 'User not found'));
+    const updated = await userService.setUserRole(email, role);
     res.status(200).json(updated);
   } catch (err) {
     next(err);

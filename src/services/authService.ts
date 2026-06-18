@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import createHttpError from 'http-errors';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-
+import { sendEmail } from './emailService.js';
 import {
   ACCESS_TOKEN_EXPIRES_IN,
   ACCESS_TOKEN_SECRET,
@@ -22,12 +22,14 @@ import {
   getSessionByToken,
   rotateSession,
 } from './sessionService.js';
+import { getInviteByToken, markInviteAsUsed } from './inviteService.js';
 
 type RegisterPayload = {
   email: string;
   password: string;
   nickname?: string;
   adminCode?: string;
+  inviteToken?: string;
 };
 
 type LoginPayload = {
@@ -92,6 +94,7 @@ export const registerUserService = async ({
   password,
   nickname,
   adminCode,
+  inviteToken,
 }: RegisterPayload) => {
   const normalizedEmail = email.toLowerCase().trim();
   const existingUser = await findUserByEmail(normalizedEmail);
@@ -104,11 +107,22 @@ export const registerUserService = async ({
     throw createHttpError(400, 'Invalid admin code');
   }
 
+  let isApprovedByInvite = false;
+
+  if (inviteToken) {
+    const invite = await getInviteByToken(inviteToken);
+    if (!invite || invite.email !== normalizedEmail) {
+      throw createHttpError(400, 'Invalid or expired invite');
+    }
+    await markInviteAsUsed(inviteToken);
+    isApprovedByInvite = true;
+  }
+
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const isAdmin = adminCode === process.env.ADMIN_SECRET;
   const role = isAdmin ? 'admin' : 'user';
-  const isApproved = isAdmin;
+  const isApproved = isAdmin || isApprovedByInvite;
 
   await createUser({
     email: normalizedEmail,
@@ -117,6 +131,17 @@ export const registerUserService = async ({
     isApproved,
     nickname: nickname?.trim() || normalizedEmail,
   });
+
+  if (!isAdmin && !isApprovedByInvite) {
+    await sendEmail(
+      process.env.GMAIL_USER!,
+      'New User Registration',
+      `<p>A new user has registered and is waiting for approval.</p>
+       <p><strong>Email:</strong> ${normalizedEmail}</p>
+       <p><strong>Nickname:</strong> ${nickname?.trim() || normalizedEmail}</p>
+       <a href="${process.env.CLIENT_URL}/users">Go to Users Page</a>`,
+    );
+  }
 
   return { message: 'User successfully registered' };
 };
@@ -196,4 +221,34 @@ export const resetPasswordService = async (
   });
 
   return { message: 'Password successfully reset' };
+};
+
+export const forgotPasswordService = async (email: string) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await findUserByEmail(normalizedEmail);
+
+  if (!user) {
+    return { message: 'If this email exists, a reset link has been sent' };
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 час
+
+  await UserCollection.findByIdAndUpdate(user._id, {
+    resetToken,
+    resetTokenExpiry,
+  });
+
+  const resetLink = `${process.env.CLIENT_URL}/auth/reset-password?token=${resetToken}`;
+
+  await sendEmail(
+    user.email,
+    'Password Reset Request',
+    `<p>Hello ${user.nickname},</p>
+     <p>Click the link below to reset your password:</p>
+     <a href="${resetLink}">${resetLink}</a>
+     <p>This link expires in 1 hour.</p>`,
+  );
+
+  return { message: 'If this email exists, a reset link has been sent' };
 };

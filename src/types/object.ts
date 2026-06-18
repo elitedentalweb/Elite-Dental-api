@@ -6,6 +6,7 @@ export interface CreateObject {
   startDate: Date;
   endDate: Date;
   status?: 'active' | 'completed';
+  priority?: 'in_progress' | 'priority' | 'on_hold';
   photosBefore?: string[];
   photosAfter?: string[];
 }
@@ -18,6 +19,7 @@ export interface UpdateObject {
   startDate?: Date;
   endDate?: Date;
   status?: 'active' | 'completed';
+  priority?: 'in_progress' | 'priority' | 'on_hold';
   photosBefore?: string[];
   photosAfter?: string[];
 }
@@ -31,6 +33,7 @@ export interface ObjectResponse {
   startDate: Date;
   endDate: Date;
   status: 'active' | 'completed';
+  priority: 'in_progress' | 'priority' | 'on_hold';
   photosBefore: string[];
   photosAfter: string[];
   createdAt: Date;

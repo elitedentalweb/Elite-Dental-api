@@ -27,7 +27,10 @@ export const updateManualProgress = async (
 ) => {
   return ObjectCollection.findByIdAndUpdate(
     id,
-    { manualProgress },
+    {
+      manualProgress,
+      status: manualProgress >= 100 ? 'completed' : 'active',
+    },
     { new: true },
   );
 };

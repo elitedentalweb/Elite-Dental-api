@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import * as authControllers from '../controllers/authController.js';
 import { authenticate } from '../middlewares/authenticate.js';
-import { resetPasswordController } from '../controllers/authController.js';
+import {
+  resetPasswordController,
+  forgotPasswordController,
+} from '../controllers/authController.js';
 
 const router = Router();
 
@@ -10,6 +13,8 @@ router.post('/register', authControllers.registerUserController);
 router.post('/login', authControllers.loginController);
 
 router.post('/logout', authControllers.logoutController);
+
+router.post('/forgot-password', forgotPasswordController);
 
 router.post('/reset-password', resetPasswordController);
 
